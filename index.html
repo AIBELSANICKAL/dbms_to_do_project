@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My DBMS To-Do List</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 600px;
+            animation: fadeIn 0.5s ease-in;
+            pointer-events: auto;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #2d3748;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: 600;
+            border-bottom: 3px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        input[type="text"], input[type="date"] {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+        input[type="text"]:focus, input[type="date"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 172, 254, 0.3);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            background: linear-gradient(135deg, #ffffff 0%, #f7fafc 100%);
+            margin-bottom: 15px;
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #4CAF50;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        li:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .delete-btn {
+            background: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+        .delete-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(255, 65, 108, 0.3);
+        }
+        .dues-li {
+            border-left-color: #ff416c;
+            background: linear-gradient(135deg, #ffeaa7 0%, #fab1a0 100%);
+        }
+        .complete-btn {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s ease;
+        }
+        .complete-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(86, 171, 47, 0.3);
+        }
+        .completed-li {
+            border-left-color: #a0aec0;
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+            text-decoration: line-through;
+            opacity: 0.8;
+        }
+        .button-container {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        button::before {
+            content: "+ ";
+        }
+        .complete-btn::before {
+            content: "✓ ";
+        }
+        .delete-btn::before {
+            content: "🗑 ";
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h1>My To-Do List</h1>
+            <a href="/logout" style="color: #4a5568; background: #edf2f7; border-radius: 8px; padding: 8px 12px; text-decoration: none; font-weight: 600;">Logout</a>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div style="margin-bottom:20px;">
+                    {% for category, message in messages %}
+                        <div style="padding:10px; border-radius: 8px; margin-bottom:6px; font-weight:600; color:#1a202c; background: {% if category=='danger' %}#fed7d7{% elif category=='warning' %}#fefcbf{% else %}#c6f6d5{% endif %};">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form action="/add" method="POST">
+            <input type="text" name="content" placeholder="Add a new task..." required>
+            <input type="date" name="deadline" required>
+            <button type="submit">Add Task</button>
+        </form>
+
+        <h2>Current Tasks</h2>
+        <ul>
+            {% for task in tasks %}
+                <li>
+                    <span>{{ task.content }} - Deadline: {{ task.deadline }}{% if task.submission_date %} - Submitted: {{ task.submission_date.strftime('%Y-%m-%d %H:%M:%S') }}{% endif %}</span>
+                    <div class="button-container">
+                        <a href="/complete/{{ task._id }}" class="complete-btn">Complete</a>
+                        <a href="/delete/{{ task._id }}" class="delete-btn">Delete</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h2>Overdue Tasks (Dues)</h2>
+        <ul>
+            {% for task in dues %}
+                <li class="dues-li">
+                    <span>{{ task.content }} - Deadline: {{ task.deadline }}{% if task.submission_date %} - Submitted: {{ task.submission_date.strftime('%Y-%m-%d %H:%M:%S') }}{% endif %}</span>
+                    <div class="button-container">
+                        <a href="/complete/{{ task._id }}" class="complete-btn">Complete</a>
+                        <a href="/delete/{{ task._id }}" class="delete-btn">Delete</a>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h2>Completed Tasks</h2>
+        <ul>
+            {% for task in completed %}
+                <li class="completed-li">
+                    <span>{{ task.content }} - Deadline: {{ task.deadline }}{% if task.submission_date %} - Submitted: {{ task.submission_date.strftime('%Y-%m-%d %H:%M:%S') }}{% endif %}</span>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
